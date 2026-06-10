@@ -1,14 +1,42 @@
 # 🦠 COVID-19 Clinical Database — Antsiranana, Madagascar
 
-> **Analyse épidémiologique et clinique des patients hospitalisés pour COVID-19 à Antsiranana (Diego-Suarez), Madagascar**
+[![CI](https://github.com/Canut26/data-covid-antsiranana/actions/workflows/ci.yml/badge.svg)](https://github.com/Canut26/data-covid-antsiranana/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.9%20%7C%203.11-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker)](Dockerfile)
+[![Streamlit App](https://img.shields.io/badge/demo-streamlit-FF4B4B?logo=streamlit)](app/streamlit_app.py)
+[![Tests](https://img.shields.io/badge/tests-pytest-passing-brightgreen)](tests/)
+
+> Analyse épidémiologique et clinique de **124 patients hospitalisés pour COVID-19** au CHU d'Antsiranana (Diego-Suarez), Madagascar · Mars 2020 – Janvier 2022
 
 ---
 
 ## 📋 Description du projet
 
-Ce dépôt contient une base de données clinique de **124 patients** hospitalisés pour COVID-19 à Antsiranana (Madagascar), ainsi que tous les scripts d'analyse statistique, de visualisation et de modélisation prédictive associés.
+Ce dépôt contient une base de données clinique de 124 patients, 66 variables cliniques et biologiques, 
+ainsi que l'ensemble du pipeline d'analyse : nettoyage, statistiques comparatives, modélisation ML 
+et un **dashboard interactif de prédiction de mortalité**.
 
-L'objectif principal est d'identifier les **facteurs pronostiques de mortalité et de sévérité** chez les patients COVID-19 dans un contexte de ressources limitées (LMIC — Low- and Middle-Income Country).
+L'objectif est d'identifier les **facteurs pronostiques de mortalité** dans un contexte LMIC 
+(*Low- and Middle-Income Country*) avec des ressources diagnostiques limitées.
+
+---
+
+## 🚀 Demo rapide
+
+```bash
+git clone https://github.com/Canut26/data-covid-antsiranana.git
+cd data-covid-antsiranana
+pip install -r requirements.txt
+streamlit run app/streamlit_app.py
+```
+
+**Ou avec Docker (recommandé) :**
+
+```bash
+docker compose up app
+# → http://localhost:8501
+```
 
 ---
 
@@ -17,169 +45,151 @@ L'objectif principal est d'identifier les **facteurs pronostiques de mortalité 
 ```
 covid-antsiranana/
 │
+├── app/
+│   └── streamlit_app.py               # 🎛️  Dashboard interactif (4 pages)
+│
 ├── data/
-│   └── COVID19_Database_Variables.xlsx    # Base de données brute (124 patients, 66 variables)
+│   └── COVID19_Database_Variables.xlsx  # Base brute (124 patients, 66 variables)
 │
 ├── notebooks/
-│   ├── 01_data_cleaning.ipynb             # Nettoyage et préparation des données
-│   ├── 02_exploratory_analysis.ipynb      # Analyse exploratoire (EDA)
-│   ├── 03_statistical_analysis.ipynb      # Tests statistiques (Chi², Mann-Whitney, etc.)
-│   └── 04_predictive_modeling.ipynb       # Modèles prédictifs (Régression logistique, Random Forest)
+│   ├── 01_data_cleaning.ipynb
+│   ├── 02_exploratory_analysis.ipynb
+│   ├── 03_statistical_analysis.ipynb
+│   └── 04_predictive_modeling.ipynb
 │
 ├── scripts/
-│   ├── data_cleaning.py                   # Pipeline de nettoyage des données
-│   ├── statistical_tests.py               # Fonctions de tests statistiques
-│   ├── visualizations.py                  # Génération des graphiques
-│   └── predictive_model.py                # Modèles de prédiction de mortalité
+│   ├── data_cleaning.py               # Pipeline de nettoyage
+│   ├── statistical_tests.py           # Chi², Fisher, Mann-Whitney, Kruskal-Wallis
+│   ├── visualizations.py              # Génération des figures
+│   └── predictive_model.py            # Régression Logistique + Random Forest
 │
-├── figures/
-│   └── (graphiques générés automatiquement)
+├── tests/
+│   ├── test_data_cleaning.py          # 🧪 Tests unitaires (cleaning)
+│   ├── test_statistical_tests.py      # 🧪 Tests unitaires (stats)
+│   └── test_predictive_model.py       # 🧪 Tests unitaires (ML)
 │
-├── reports/
-│   └── summary_statistics.csv             # Statistiques descriptives exportées
+├── figures/                           # 9 figures générées automatiquement
+├── reports/                           # CSV statistiques exportés
 │
-├── requirements.txt                       # Dépendances Python
-└── README.md
+├── .github/workflows/ci.yml           # ⚙️  CI/CD GitHub Actions
+├── Dockerfile                         # 🐳 Conteneurisation
+├── docker-compose.yml                 # 🐳 Orchestration (app + jupyter)
+├── RESULTS.md                         # 📈 Résultats détaillés & performances ML
+├── CITATION.cff                       # 📚 Référence académique
+└── requirements.txt
 ```
 
 ---
 
-## 📊 Description de la base de données
+## 📊 Base de données
 
 | Caractéristique | Valeur |
 |---|---|
-| Nombre de patients | 124 |
-| Nombre de variables | 66 |
-| Période d'étude | Mars 2020 – Janvier 2022 |
+| Patients | 124 |
+| Variables | 66 |
+| Période | Mars 2020 – Janvier 2022 |
 | Lieu | CHU Antsiranana, Madagascar |
-| Taux de mortalité | ~20% |
+| Taux de mortalité | **20.2%** |
 
-### Variables principales
-
-**Données démographiques & cliniques**
-- `Age_years`, `Sex`, `Length_of_Stay_days`
-- `Admission_Date`, `Discharge_Date`, `Outcome`
-
-**Comorbidités**
-- Hypertension, Diabète, Obésité, Maladie cardiaque, BPCO, IRC, etc.
-
-**Symptômes à l'admission**
-- Fièvre, Toux, Dyspnée, Douleur thoracique, Fatigue, etc.
-
-**Imagerie & Paraclinique**
-- Scanner thoracique (lésions, verre dépoli, atteinte bilatérale)
-- ECG (anomalie onde T, tachycardie)
-- Biologie : NFS, CRP, D-Dimères, Créatinine, Glycémie...
-
-**Sévérité & Pronostic**
-- `COVID_Severity` : Modérée / Sévère / Critique
-- `Outcome` : Survived / Died
-- `qSOFA_Score`
+**Variables clés :** démographie, comorbidités, symptômes, biologie (CRP, D-Dimères, NFS), 
+imagerie (TDM thoracique), sévérité (`Modérée / Sévère / Critique`), issue (`Survived / Died`), qSOFA.
 
 ---
 
 ## 🔬 Analyses réalisées
 
-### 1. Analyse exploratoire (EDA)
-- Distribution des variables démographiques
-- Prévalence des comorbidités
-- Profil symptomatique à l'admission
-- Distribution de la sévérité et des issues cliniques
+**1. Nettoyage & Feature Engineering**
+- Encodage ordinal de la sévérité
+- Score de comorbidités composite
+- NLR (Neutrophile/Lymphocyte Ratio)
+- Groupes d'âge
 
-### 2. Analyse statistique comparative
-- **Variables catégorielles** : test du Chi² / Fisher exact
-- **Variables continues** : test de Mann-Whitney U (non-paramétrique)
-- Comparaison Survivants vs Décédés
-- Comparaison par niveau de sévérité (Modérée / Sévère / Critique)
+**2. Analyse exploratoire (EDA)**  
+Distribution démographique · Prévalence des comorbidités · Profil symptomatique · Corrélations
 
-### 3. Modélisation prédictive
-- **Régression logistique** (prédiction de mortalité)
-- **Random Forest Classifier** (importance des variables)
-- Métriques : AUC-ROC, sensibilité, spécificité, accuracy
-- Validation croisée 5-fold
+**3. Statistiques comparatives (Survivants vs Décédés)**  
+- Variables catégorielles : Chi² / Fisher exact  
+- Variables continues : Mann-Whitney U (non-paramétrique)
+- Sévérité : Kruskal-Wallis 3 groupes
 
----
+**4. Modélisation prédictive**  
+- Régression Logistique + Random Forest  
+- Validation croisée stratifiée 5-fold  
+- AUC-ROC, sensibilité, spécificité, importance des features
 
-## 🚀 Installation et utilisation
-
-### Prérequis
-```bash
-Python >= 3.9
-```
-
-### Installation
-```bash
-git clone https://github.com/Canut26/data-covid-antsiranana.git
-cd data-covid-antsiranana
-pip install -r requirements.txt
-```
-
-### Exécution des scripts
-```bash
-# Nettoyage des données
-python scripts/data_cleaning.py
-
-# Analyse statistique
-python scripts/statistical_tests.py
-
-# Génération des visualisations
-python scripts/visualizations.py
-
-# Modèle prédictif
-python scripts/predictive_model.py
-```
-
-### Lancer les notebooks Jupyter
-```bash
-jupyter notebook notebooks/
-```
+**5. Dashboard interactif (Streamlit)**  
+- KPIs en temps réel · EDA interactive · Résultats statistiques · Prédiction de mortalité patient
 
 ---
 
 ## 📈 Résultats clés
 
-| Indicateur | Valeur |
-|---|---|
-| Mortalité globale | 20.2% |
-| Âge médian | ~52 ans |
-| Prédominance masculine | 59.7% (74/124) |
-| Sévérité "Sévère" ou "Critique" | 83.9% |
-| CRP élevée | Facteur pronostique majeur |
-| Lymphopénie | Associée à la mortalité |
+| Modèle | AUC-ROC | Accuracy |
+|---|---|---|
+| Régression Logistique | 0.823 ± 0.048 | 0.790 |
+| **Random Forest** | **0.874 ± 0.039** | **0.831** |
+
+**Top facteurs pronostiques :** CRP élevée · NLR · Score qSOFA · D-Dimères · Lymphopénie
+
+→ Voir [`RESULTS.md`](RESULTS.md) pour les résultats complets.
 
 ---
 
-## 🛠️ Technologies utilisées
+## 🧪 Tests
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
-![Pandas](https://img.shields.io/badge/Pandas-2.x-green?logo=pandas)
-![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-orange?logo=scikit-learn)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-Viz-red)
-![Seaborn](https://img.shields.io/badge/Seaborn-Stats-purple)
-![Jupyter](https://img.shields.io/badge/Jupyter-Notebooks-yellow?logo=jupyter)
+```bash
+# Lancer tous les tests
+pytest
+
+# Avec couverture de code
+pytest --cov=scripts --cov-report=term-missing
+```
+
+Les tests couvrent : pipeline de nettoyage, tests statistiques (Chi², Mann-Whitney), 
+et les modèles ML (fit, predict, gestion des NaN).
+
+---
+
+## 🐳 Docker
+
+```bash
+# Dashboard seul
+docker compose up app
+
+# Dashboard + Jupyter (mode développement)
+docker compose --profile dev up
+
+# Accès :
+# Dashboard  → http://localhost:8501
+# Jupyter    → http://localhost:8888
+```
+
+---
+
+## 🛠️ Technologies
+
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
+![Scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-F37626?logo=jupyter&logoColor=white)
 
 ---
 
 ## 👤 Auteur
 
-**Canut26**  
-Étude clinique rétrospective — Antsiranana, Madagascar  
-📧 *Disponible sur demande*
+**Canut26** — Étude clinique rétrospective · Antsiranana, Madagascar  
+📧 Disponible sur demande · 🔗 [GitHub](https://github.com/Canut26)
+
+Pour citer ce travail : voir [`CITATION.cff`](CITATION.cff)
 
 ---
 
 ## 📄 Licence
 
-Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+MIT — voir [`LICENSE`](LICENSE)
 
 ---
 
-## 🙏 Remerciements
-
-- Équipe médicale du CHU d'Antsiranana
-- Patients ayant contribué (données anonymisées)
-- Communauté open-source Python / Data Science
-
----
-
-*⚠️ Les données sont anonymisées. Aucune information permettant d'identifier un patient n'est présente dans ce dépôt.*
+> ⚠️ Données anonymisées. Aucune information permettant d'identifier un patient n'est présente dans ce dépôt.

@@ -1,0 +1,114 @@
+name: CI — Tests & Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ── Tests unitaires ──────────────────────────────────────────────────────
+  test:
+    name: 🧪 Unit Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run unit tests with coverage
+        run: |
+          pytest tests/ -v \
+            --cov=scripts \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --tb=short
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: coverage-py${{ matrix.python-version }}
+        continue-on-error: true   # ne bloque pas si Codecov non configuré
+
+  # ── Vérification de la qualité du code ──────────────────────────────────
+  lint:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install linting tools
+        run: pip install flake8
+
+      - name: Run flake8 (style check)
+        run: |
+          flake8 scripts/ app/ tests/ \
+            --max-line-length=100 \
+            --ignore=E203,W503 \
+            --exclude=__pycache__,.git
+
+  # ── Vérification du pipeline de données ─────────────────────────────────
+  pipeline-check:
+    name: 🔄 Data Pipeline Check
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify scripts import correctly
+        run: |
+          cd scripts
+          python -c "from data_cleaning import clean_pipeline; print('✅ data_cleaning OK')"
+          python -c "from statistical_tests import chi2_or_fisher, mann_whitney; print('✅ statistical_tests OK')"
+          python -c "from predictive_model import build_rf_pipeline, build_logistic_pipeline; print('✅ predictive_model OK')"
+          python -c "from visualizations import save; print('✅ visualizations OK')"
+
+  # ── Build Docker image (vérification) ───────────────────────────────────
+  docker-build:
+    name: 🐳 Docker Build Check
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t covid-antsiranana:test .
+
+      - name: Verify image built successfully
+        run: docker images covid-antsiranana:test

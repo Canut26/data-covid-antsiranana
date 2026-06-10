@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code in your research, please cite it as below."
+type: software
+
+title: "COVID-19 Clinical Database — Antsiranana, Madagascar"
+abstract: >
+  Retrospective clinical database of 124 COVID-19 patients hospitalized at CHU Antsiranana
+  (Diego-Suarez), Madagascar, from March 2020 to January 2022. The repository includes
+  statistical analysis scripts, machine learning predictive models (Logistic Regression,
+  Random Forest), and an interactive Streamlit dashboard for real-time mortality risk prediction.
+  All data are fully anonymized.
+
+authors:
+  - family-names: "Canut"
+    given-names: ""
+    alias: "Canut26"
+    affiliation: "CHU Antsiranana, Madagascar"
+    orcid: ""   # à compléter si disponible
+
+repository-code: "https://github.com/Canut26/data-covid-antsiranana"
+url: "https://github.com/Canut26/data-covid-antsiranana"
+license: MIT
+
+version: "1.0.0"
+date-released: "2024-01-01"
+
+keywords:
+  - COVID-19
+  - epidemiology
+  - Madagascar
+  - machine learning
+  - random forest
+  - mortality prediction
+  - clinical data
+  - LMIC
+  - low-income countries
+  - biomarkers
+
+references:
+  - type: article
+    title: "Predictive factors of mortality in COVID-19 patients: a retrospective cohort study in Antsiranana, Madagascar"
+    authors:
+      - family-names: "Canut"
+        given-names: ""
+    year: 2024
+    notes: "Manuscript in preparation"
